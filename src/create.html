@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create/Update Link</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: monospace;
+        background: black;
+      }
+      form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        min-height: 100vh;
+        color: white;
+      }
+      input {
+        color: white;
+        border: 1px solid white;
+        background-color: transparent;
+        padding: 1rem;
+        margin: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <form>
+      <label for="short">Short</label>
+      <input required type="text" name="short" id="short" />
+      <label for="url">URL</label>
+      <input type="text" name="url" id="url" />
+      <label for="secret">Secret</label>
+      <input required type="password" name="secret" id="secret" />
+      <button hidden type="submit">Submit</button>
+    </form>
+    <script type="module">
+      const form = document.querySelector("form");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = new FormData(form);
+        const url = data.get("url");
+
+        fetch(`/${data.get("short")}`, {
+          method: url === "" ? "DELETE" : "POST",
+          body: url,
+          headers: {
+            Authorization: data.get("secret"),
+          },
+        })
+          .then((response) => response.text())
+          .then((data) => {
+            if (url !== "") {
+              document.location = data;
+              return;
+            }
+
+            form.reset();
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+
+        return false;
+      });
+    </script>
+  </body>
+</html>

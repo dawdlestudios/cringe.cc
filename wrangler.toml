@@ -1,0 +1,11 @@
+compatibility_date = "2022-10-04"
+main = "src/index.ts"
+name = "cringe-cc"
+
+kv_namespaces = [
+  {binding = "SHORT_URLS", id = "fc08f33d84cf48a1b4e057ad016a4df5", preview_id = "8df73ee07c4e4cf79046026cf9cb32a2"},
+]
+
+rules = [
+  {type = "Text", globs = ["**/*.html"], fallthrough = true},
+]
