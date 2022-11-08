@@ -1,12 +1,9 @@
 import createPage from "./create.html";
 import notFoundPage from "./404.html";
-
 export interface Env {
   SHORT_URLS: KVNamespace;
   PASS: string;
 }
-
-const basePath = "https://cringe.cc";
 
 export default {
   async fetch(
@@ -17,9 +14,10 @@ export default {
     const url = new URL(request.url);
     const { pathname } = url;
 
+    const ua = request.headers.get("user-agent") || "";
+    const isBot = ua && (ua.includes("Discordbot") || ua.includes("Slackbot") || ua.includes("TelegramBot") || ua.includes("WhatsApp"));
+
     if (request.method === "POST" || request.method === "DELETE") {
-			console.log(request.headers.get("Authorization"));
-			
       if (request.headers.get("Authorization") !== (env.PASS ?? "sus")) {
         return new Response("Unauthorized", { status: 401 });
       }
@@ -45,14 +43,11 @@ export default {
     }
 
     if (pathname === "/") {
-      return Response.redirect("https://www.youtube.com/watch?v=6n3pFFPSlW4", 301);
+      return Response.redirect("https://cringe.cc/create", 301);
     }
 
-    console.log(await env.PASS);
-
-    const redirectURL = await env.SHORT_URLS.get(pathname);
-    console.log(redirectURL);
-
+    let redirectURL = await env.SHORT_URLS.get(pathname);
+    
     if (!redirectURL) {
       return new Response(notFoundPage, {
         headers: {
@@ -62,6 +57,12 @@ export default {
       });
     }
 
+    let fakeURL;
+    if (redirectURL.includes("$$")) {
+      [redirectURL, fakeURL] = redirectURL.split("$$");
+    }
+
+    if (isBot && fakeURL) return Response.redirect(fakeURL, 301);
     return Response.redirect(redirectURL, 301);
   },
 };

@@ -27,37 +27,81 @@
         background-color: transparent;
         padding: 1rem;
         margin: 0.5rem;
+        width: 18rem;
+      }
+      button {
+        cursor: pointer;
+        display: flex;
+        border: 1px solid white;
+        padding: 1rem;
+        margin: 0.5rem;
+        color: white;
+        background: #ff0f8b;
+        width: 20rem;
+        justify-content: center;
       }
     </style>
   </head>
   <body>
     <form>
-      <label for="short">Short</label>
-      <input required type="text" name="short" id="short" />
-      <label for="url">URL</label>
-      <input type="text" name="url" id="url" />
-      <label for="secret">Secret</label>
-      <input required type="password" name="secret" id="secret" />
-      <button hidden type="submit">Submit</button>
+      <h1>cringe.cc url shortener (private)</h1>
+      <label for="short">short</label>
+      <input placeholder="anime" required type="text" name="short" id="short" />
+      <label for="url">url</label>
+      <input
+        placeholder="https://google.com/"
+        type="text"
+        name="url"
+        id="url"
+      />
+      <label for="url">preview url</label>
+      <input
+        placeholder="https://elgoog.com/"
+        type="text"
+        name="fakeurl"
+        id="fakeurl"
+      />
+      <label for="secret">secret</label>
+      <input
+        placeholder="hunter2"
+        required
+        type="password"
+        name="secret"
+        id="secret"
+      />
+      <button type="submit">create/update</button>
     </form>
     <script type="module">
       const form = document.querySelector("form");
       form.addEventListener("submit", (e) => {
         e.preventDefault();
-        const data = new FormData(form);
-        const url = data.get("url");
+        const formData = new FormData(form);
+        let url = formData.get("url");
+        const fakeurl = formData.get("fakeurl");
 
-        fetch(`/${data.get("short")}`, {
+        if (fakeurl && fakeurl !== "") {
+          url += "$$" + fakeurl;
+        }
+
+        fetch(`/${formData.get("short")}`, {
           method: url === "" ? "DELETE" : "POST",
           body: url,
           headers: {
-            Authorization: data.get("secret"),
+            Authorization: formData.get("secret"),
           },
         })
           .then((response) => response.text())
           .then((data) => {
+            if (data === "Unauthorized") {
+              alert("Unauthorized");
+              return;
+            }
+
             if (url !== "") {
-              document.location = data;
+              alert(`Link created: https://cringe.cc/${formData.get("short")}`);
+              return;
+            } else {
+              alert(`Link deleted`);
               return;
             }
 
